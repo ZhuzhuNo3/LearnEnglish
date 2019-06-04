@@ -1,0 +1,156 @@
+#-*- coding=utf-8 -*-#
+import datetime,re,random,time
+from os import system as sy
+try:
+    from wordslist import wordslist,daka
+except ModuleNotFoundError:#不存在则新建存档
+    with open('wordslist.py','w') as f:
+        f.write("wordslist={}\ndaka={'L_D':'2019-1-1','CON':0,'TOT':0}")
+    from wordslist import wordslist,daka
+
+def main():
+    global DATE
+    timelist = (1,2,4,7,15,31,36,41)
+    DATE = []
+    now = datetime.date.today()#今天的日期
+    DATE.append(str(now))
+    for i in timelist:#计算需要复习的日期
+        delta = datetime.timedelta(days=i)
+        DATE.append(str(now + delta))
+    L_D=[int(i) for i in daka['L_D'].split('-')]
+    if datetime.date(L_D[0],L_D[1],L_D[2])+datetime.timedelta(1)!=now:
+        daka['CON']=0#没有连续复习
+    if daka['TOT']==0:
+        pass
+    elif not print(f"你已连续复习{daka['CON']}天,累计天{daka['TOT']}啦") and daka['CON']==0:
+        print('不积跬步,无以至千里!')
+    elif daka['CON']<6:
+        print('继续加油哦!')
+    elif daka['CON']<50:
+        print('Whatever is worth doing is worth doing well!')
+    else:
+        print('Great minds have purpose, others have wishes.')
+    #以上初始化结束
+    while 1:
+        print('\n1.新增 2.复习 3.删除 4.查询 5.退出')
+        try:
+            n = int(input())
+        except:
+            continue
+        if n == 1:
+            print('新增内容:(q/退出)')
+            while True:
+                x = input()
+                if x == 'q':
+                    break
+                elif x == '':
+                    print('无效内容')
+                else:
+                    learn(x)
+        elif n == 2:
+            print('复习:(q/退出;y/已会(不再出现))')
+            check(str(now))
+        elif n == 3:
+            for i in wordslist:
+                for k in wordslist[i]:
+                    print(k+' ',end='')
+            print('\n删除:')
+            dele(input())
+            input('回车结束')
+        elif n == 4:
+            seekword()
+        elif n == 5:
+            break
+        try:
+            sy('clear')
+        except:
+            sy('clr')
+
+def learn(x):
+    global DATE
+    xen = re.findall(r'(.+?)\s',x)
+    xch = re.findall(r'.+?\s(.+)',x)
+    if not xch:
+        print('输入格式:hello 你好,哈啰')
+        return
+    else:
+        xen = xen[0]
+        xch = xch[0]
+    date1 = ','.join(DATE)
+    #需要记忆的日期存储为key
+    #输入内容存储为dict
+    if date1 not in wordslist:
+        wordslist[date1]={}
+    for i in wordslist:
+        if xen in wordslist[i]:#如果输入内容已存在
+            print('%s 已存在, 是否需要修改?y/n'%(xen+' '+wordslist[i][xen]))
+            if input()=='y':
+                wordslist[i][xen]=xch
+                print('✓')
+                save()
+            return
+    wordslist[date1][xen] = xch
+    save()
+
+def save():
+    data = 'wordslist=%s\ndaka=%s'%(wordslist,daka)
+    with open('wordslist.py','w') as f:#保存存档
+        f.write(data)
+
+def check(x):#x=日期
+    print('= = 今日份复习开始 = =')
+    value = [i for i in wordslist if x in i]
+    l=[]
+    for i in value:
+        l += [(k,'%s'%wordslist[i][k]) for k in wordslist[i]]
+    random.shuffle(l)
+    k=0
+    for i in l:
+        print(i[0])
+        for j in range(5):
+            print('\r'+str(5-j),end='')
+            time.sleep(1)
+        print('\r'+i[1])
+        k+=1
+        tag=input(f'{len(l)-k}/{len(l)}')
+        if tag=='q':
+            print('还没背完就退出无法打卡哦,确定退出吗?y/n')
+            if input()=='y':
+                print(':P')
+                return
+        elif tag=='y':
+            if 'knowwell' not in wordslist:
+                wordslist['knowwell']={}
+            wordslist['knowwell'][i[0]] = i[1]
+            dele(i[0])
+    print('背完啦,给自己点个赞吧^_^')
+    daka['CON']+=1
+    daka['TOT']+=1
+    save()
+
+def dele(x):
+    for i in wordslist:
+        if x in wordslist[i]:
+            del wordslist[i][x]
+            print('✓')
+            save()
+            return
+    print('不存在')
+
+def seekword():
+    print('输入要查询的单词(退出->q):')
+    while 1:
+        k=0
+        x=input()
+        for i in wordslist:
+            if x in wordslist[i]:
+                print(wordslist[i][x])
+                k=1
+            elif x == 'q':
+                return
+        if k==0:
+            print('单词不在库中')
+    input('回车结束')
+
+if __name__=='__main__':
+    main()
