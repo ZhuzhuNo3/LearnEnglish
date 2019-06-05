@@ -129,7 +129,7 @@ def check(x):#x=日期
         daka['CON']+=1
         daka['TOT']+=1
         daka['L_D']=datetime.date.today()
-    save()
+        save()
 
 def dele(x):
     for i in wordslist:
