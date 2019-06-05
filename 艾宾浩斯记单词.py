@@ -69,7 +69,6 @@ def main():
             Ch=[i for i in Ch if i]#去除0
             if Ch:#有重复
                 Change(Ch)
-            input('回车结束')
         elif n == 2:
             print('复习:(q/退出;y/已会(不再出现))')
             check(str(now))
@@ -79,11 +78,11 @@ def main():
                     print(k+' ',end='')
             print('\n删除:')
             dele(input())
-            input('回车结束')
         elif n == 4:
             seekword()
         elif n == 5:
             break
+        input('回车结束...')
         try:
             sy('clear')
         except:
@@ -192,7 +191,6 @@ def seekword():
                 return
         if k==0:
             print('单词不在库中')
-    input('回车结束')
 
 if __name__=='__main__':
     main()
