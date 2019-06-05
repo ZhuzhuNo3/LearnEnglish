@@ -18,7 +18,8 @@ def main():
         delta = datetime.timedelta(days=i)
         DATE.append(str(now + delta))
     L_D=[int(i) for i in daka['L_D'].split('-')]
-    if datetime.date(L_D[0],L_D[1],L_D[2])+datetime.timedelta(1)!=now:
+    LD=datetime.date(L_D[0],L_D[1],L_D[2])
+    if (LD+datetime.timedelta(1))!=now and LD!=now:
         daka['CON']=0#没有连续复习
     if daka['TOT']==0:
         pass
@@ -124,8 +125,10 @@ def check(x):#x=日期
             wordslist['knowwell'][i[0]] = i[1]
             dele(i[0])
     print('背完啦,给自己点个赞吧^_^')
-    daka['CON']+=1
-    daka['TOT']+=1
+    if daka['L_D']!=datetime.date.today():
+        daka['CON']+=1
+        daka['TOT']+=1
+        daka['L_D']=datetime.date.today()
     save()
 
 def dele(x):
