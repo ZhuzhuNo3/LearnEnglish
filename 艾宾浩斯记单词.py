@@ -39,15 +39,37 @@ def main():
         except:
             continue
         if n == 1:
-            print('新增内容:(q/退出)')
-            while True:
-                x = input()
-                if x == 'q':
-                    break
-                elif x == '':
-                    print('无效内容')
-                else:
-                    learn(x)
+            Ch=[]#重复列表
+            print('新增内容:(q/结束)(格式:A  B)(2个空格)')
+            x=input('1.批量导入 2.文件导入:')
+            if x=='2':
+                print('文件内容格式:\nA  B(换行,括号里的不需要哦)\nA  B\n...')
+                data=input('输入文件详细地址:\n')
+                try:
+                    while data[-1]==' ':#去除多余空格
+                        data=data[:-1]
+                    with open(data,'r') as f:
+                        words=f.read().split('\n')
+                    while words[-1]=='':#去除空元素
+                        words=words[:-1]
+                    for i in words:
+                        print(i)
+                        Ch.append(learn(i))
+                except:
+                    print('无法读取文件')
+            elif x=='1':
+                while True:
+                    x = input()
+                    if x == 'q':
+                        break
+                    elif x == '':
+                        print('无效内容')
+                    else:
+                        Ch.append(learn(x))
+            Ch=[i for i in Ch if i]#去除0
+            if Ch:#有重复
+                Change(Ch)
+            input('回车结束')
         elif n == 2:
             print('复习:(q/退出;y/已会(不再出现))')
             check(str(now))
@@ -69,11 +91,11 @@ def main():
 
 def learn(x):
     global DATE
-    xen = re.findall(r'(.+?)\s',x)
-    xch = re.findall(r'.+?\s(.+)',x)
+    xen = re.findall(r'(.+?)\s\s',x)
+    xch = re.findall(r'.+?\s\s(.+)',x)
     if not xch:
-        print('输入格式:hello 你好,哈啰')
-        return
+        print('输入格式:hello  你好,哈啰')
+        return 0
     else:
         xen = xen[0]
         xch = xch[0]
@@ -84,13 +106,30 @@ def learn(x):
         wordslist[date1]={}
     for i in wordslist:
         if xen in wordslist[i]:#如果输入内容已存在
-            print('%s 已存在, 是否需要修改?y/n'%(xen+' '+wordslist[i][xen]))
-            if input()=='y':
-                wordslist[i][xen]=xch
-                print('✓')
-                save()
-            return
+            return (xen,i,wordslist[i][xen],xch)
     wordslist[date1][xen] = xch
+    save()
+    return 0
+
+def Change(Ch):#Ch=[(xen,Date_index,oldxch,newxch),]
+    print('已存在词汇,是否修改: %s'%(' '.join([i[0] for i in Ch])))
+    k=1
+    for i in Ch:
+        if k:
+            print(f"{i[0]}: {i[2]} --> {i[3]}")
+            tag=input('?Y/y/N/n ')
+        if tag=='y':
+            wordslist[i[1]][i[0]]=i[3]
+            print('✓')
+        elif tag=='n':
+            pass
+        elif tag=='Y':
+            wordslist[i[1]][i[0]]=i[3]
+            if k:
+                print('✓')
+            k=0
+        else:
+            k=0
     save()
 
 def save():
