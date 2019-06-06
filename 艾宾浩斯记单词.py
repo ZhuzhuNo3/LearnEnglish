@@ -2,16 +2,22 @@
 import datetime,re,random,time
 from os import system as sy
 try:
-    from wordslist import wordslist,daka,Map
+    from wordslist import wordslist,daka,Map,Map0
 except ModuleNotFoundError:#不存在则新建存档
     with open('wordslist.py','w') as f:
         temp=[['2019-01-01',0,0]]*7
-        f.write("wordslist={}\ndaka={'L_D':'2019-1-1','CON':0,'TOT':0}\nMap=%s"%temp)
-    from wordslist import wordslist,daka,Map
+        f.write("wordslist={}\ndaka={'L_D':'2019-1-1','CON':0,'TOT':0}\nMap=%s\nMap0=0"%temp)
+    from wordslist import wordslist,daka,Map,Map0
 
 def main():
     global DATE
     global Map
+    global Map0
+    print('图表状态:%s'%('关' if not Map0 else '开'))
+    if input('如需切换请输入1:(默认请直接回车)'):
+        Map0=int(not Map0)
+    save()
+    sy('clear')
     timelist = (1,2,4,7,15,31,36,41)
     DATE = []
     now = datetime.date.today()#今天的日期
@@ -86,11 +92,8 @@ def main():
             seekword()
         elif n == 5:
             break
-        input('回车结束...')
-        try:
-            sy('clear')
-        except:
-            sy('clr')
+        input('回车结束...')    
+        sy('clear')
 
 def learn(x):
     global DATE
@@ -138,7 +141,8 @@ def Change(Ch):#Ch=[(xen,Date_index,oldxch,newxch),]
     save()
 
 def save():
-    data = 'wordslist=%s\ndaka=%s\nMap=%s'%(wordslist,daka,Map)
+    global Map0
+    data = 'wordslist=%s\ndaka=%s\nMap=%s\nMap0=%d'%(wordslist,daka,Map,Map0)
     with open('wordslist.py','w') as f:#保存存档
         f.write(data)
 
@@ -172,11 +176,13 @@ def check(x):#x=日期
                 wordslist['knowwell']={}
             wordslist['knowwell'][i[0]] = i[1]
             dele(i[0])
+    Map[-1][1]=k
     print('背完啦,给自己点个赞吧^_^')
     if not l:
         print('不要自己骗自己哦...')
-    WaveMap(Map)
-    if daka['L_D']!=datetime.date.today():
+    if Map0:
+        WaveMap(Map)
+    if daka['L_D']!=str(datetime.date.today()):
         daka['CON']+=1
         daka['TOT']+=1
         daka['L_D']=str(datetime.date.today())
