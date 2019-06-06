@@ -150,6 +150,7 @@ def check(x):#x=日期
     for i in value:
         l += [(k,'%s'%wordslist[i][k]) for k in wordslist[i]]
     random.shuffle(l)
+    l=l[:151]#设置上限
     k=0
     for i in l:
         print(i[0])
