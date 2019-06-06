@@ -2,17 +2,21 @@
 import datetime,re,random,time
 from os import system as sy
 try:
-    from wordslist import wordslist,daka
+    from wordslist import wordslist,daka,Map
 except ModuleNotFoundError:#不存在则新建存档
     with open('wordslist.py','w') as f:
-        f.write("wordslist={}\ndaka={'L_D':'2019-1-1','CON':0,'TOT':0}")
-    from wordslist import wordslist,daka
+        temp=[['2019-01-01',0,0]]*7
+        f.write("wordslist={}\ndaka={'L_D':'2019-1-1','CON':0,'TOT':0}\nMap=%s"%temp)
+    from wordslist import wordslist,daka,Map
 
 def main():
     global DATE
+    global Map
     timelist = (1,2,4,7,15,31,36,41)
     DATE = []
     now = datetime.date.today()#今天的日期
+    if Map[-1][0]!=str(now):
+        Map=Map[1:]+[[str(now),0,0]]
     DATE.append(str(now))
     for i in timelist:#计算需要复习的日期
         delta = datetime.timedelta(days=i)
@@ -90,6 +94,7 @@ def main():
 
 def learn(x):
     global DATE
+    global Map
     xen = re.findall(r'(.+?)\s\s',x)
     xch = re.findall(r'.+?\s\s(.+)',x)
     if not xch:
@@ -107,6 +112,7 @@ def learn(x):
         if xen in wordslist[i]:#如果输入内容已存在
             return (xen,i,wordslist[i][xen],xch)
     wordslist[date1][xen] = xch
+    Map[-1][2]=len(wordslist[date1])
     save()
     return 0
 
@@ -132,11 +138,12 @@ def Change(Ch):#Ch=[(xen,Date_index,oldxch,newxch),]
     save()
 
 def save():
-    data = 'wordslist=%s\ndaka=%s'%(wordslist,daka)
+    data = 'wordslist=%s\ndaka=%s\nMap=%s'%(wordslist,daka,Map)
     with open('wordslist.py','w') as f:#保存存档
         f.write(data)
 
 def check(x):#x=日期
+    global Map
     print('= = 今日份复习开始 = =')
     value = [i for i in wordslist if x in i]
     l=[]
@@ -155,6 +162,8 @@ def check(x):#x=日期
         if tag=='q':
             print('还没背完就退出无法打卡哦,确定退出吗?y/n')
             if input()=='y':
+                Map[-1][1]=k
+                save()
                 print(':P')
                 return
         elif tag=='y':
@@ -163,10 +172,13 @@ def check(x):#x=日期
             wordslist['knowwell'][i[0]] = i[1]
             dele(i[0])
     print('背完啦,给自己点个赞吧^_^')
+    if not l:
+        print('不要自己骗自己哦...')
+    WaveMap(Map)
     if daka['L_D']!=datetime.date.today():
         daka['CON']+=1
         daka['TOT']+=1
-        daka['L_D']=datetime.date.today()
+        daka['L_D']=str(datetime.date.today())
         save()
 
 def dele(x):
@@ -191,6 +203,64 @@ def seekword():
                 return
         if k==0:
             print('单词不在库中')
+
+def WaveMap(data0):#极其简陋的图data0=[listY1,...];listY=[date,r_num,l_num]
+    temp=data0[-1][0].split('-')
+    data=[data0[-1]]
+    for i in range(1,7):
+        delta=datetime.timedelta(days=i)
+        k=datetime.date(int(temp[0]),int(temp[1]),int(temp[2]))-delta
+        t=1
+        for j in range(7):
+            if str(k)==data0[j][0]:
+                data=[data0[j]]+data
+                t=0
+                break
+        if t:
+            data=[[str(k),0,0]]+data
+    Dia=('▒','█','░')
+    Map=('┃','━','┻','┗','▶','▲')
+    print('      %s:复习数量    %s:学习数量'%(Dia[0],Dia[2]))
+    temp=''.join([f'{i[0][-5:]:>6}' for i in data])
+    X0='       '+temp
+    X1='   0'+Map[3]+(Map[1]*5+Map[2])*7+Map[1]*5+Map[4]
+    temp=[f'{i:>4}' for i in range(100,0,-10)]
+    for i in range(len(temp)):
+        if i%2==1:
+            temp[i]='    '
+    Y=['    ']*2+temp+['    ']
+    temp=[Map[5]+'     ']+[Map[0]+'     ']*11
+    Y=[Y[i]+temp[i] for i in range(12)]
+    #以上框架
+    H=[0,0]
+    for k in (0,1):
+        Ht=[0]*37
+        for i in range(7):
+            Ht[i*6]=data[i][k+1]
+        for i in range(0,36,6):
+           a=Ht[i]
+           b=Ht[i+6]
+           Ht[i+3]=(a+b)//2
+           Ht[i+2]=(Ht[i+3]+a)//2
+           Ht[i+4]=(Ht[i+3]+b)//2
+           Ht[i+1]=(Ht[i+2]+a)//2
+           Ht[i+5]=(Ht[i+4]+b)//2
+        for i in range(37):
+            add=0 if Ht[i]%10<5 else 1
+            if add>12:
+                add=12
+            Ht[i]=Ht[i]//10+add
+        H[k]=Ht
+    for i in range(37):
+        Dh=(Dia[0],H[0][i])
+        Dl=(Dia[2],H[1][i])
+        if H[0][i]<H[1][i]:
+            temp=Dl
+            Dl=Dh
+            Dh=temp
+        temp=[' ']*(12-Dh[1])+[Dh[0]]*(Dh[1]-Dl[1])+[Dia[1]]*(Dl[1])
+        Y=[Y[i]+temp[i] for i in range(12)]
+    print('\n'.join(Y)+'\n'+X1+'\n'+X0)
 
 if __name__=='__main__':
     main()
