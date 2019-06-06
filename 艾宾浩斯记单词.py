@@ -7,6 +7,7 @@ except ModuleNotFoundError:#不存在则新建存档
     with open('wordslist.py','w') as f:
         temp=[['2019-01-01',0,0]]*7
         f.write("wordslist={}\ndaka={'L_D':'2019-1-1','CON':0,'TOT':0}\nMap=%s\nMap0=0"%temp)
+    time.sleep(0.1)#避免模块导入失败
     from wordslist import wordslist,daka,Map,Map0
 
 def main():
