@@ -3,7 +3,8 @@ import datetime,re,random,time,os
 from os import system as sy
 from sys import path
 nowpath=os.getcwd()+'/.DANCIsave'#藏起来hhh
-sy('mkdir %s'%nowpath)
+if not os.path.exists(nowpath):
+    os.makedirs(nowpath)
 path.append(nowpath)#将存档位置加入模块导入默认目录
 k=0
 try:

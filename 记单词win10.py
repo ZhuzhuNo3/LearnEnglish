@@ -1,13 +1,43 @@
 ﻿#-*- coding=utf-8 -*-#
-import datetime,re,random,time
+import datetime,re,random,time,os
 from os import system as sy
+from sys import path
+nowpath=os.getcwd()+'/DANCIsave'
+if not os.path.exists(nowpath):
+    os.makedirs(nowpath)
+    sy('attrib "%s" +h'%nowpath)#隐藏文件夹
+path.append(nowpath)#将存档位置加入模块导入默认目录
+k=0
 try:
     from wordslist import wordslist,daka,Map,Map0
-except ModuleNotFoundError:#不存在则新建存档
-    with open('wordslist.py','w') as f:
+except:
+    #不存在则新建存档
+    k=25
+    with open('%s\\wordslist.py'%nowpath,'w') as f:
         temp=[['2019-01-01',0,0]]*7
         f.write("wordslist={}\ndaka={'L_D':'2019-1-1','CON':0,'TOT':0}\nMap=%s\nMap0=0"%temp)
-    from wordslist import wordslist,daka,Map,Map0
+#尽力导入模块...
+while k>1:
+    print('\r新建存档中',end='')
+    k-=1
+    if k%4==0:
+        print('   ',end='')
+    elif k%4==1:
+        print('.  ',end='')
+    elif k%4==2:
+        print('.. ',end='')
+    else:
+        print('...',end='')
+    try:
+        from wordslist import wordslist,daka,Map,Map0
+        print('')
+        break
+    except:
+        time.sleep(0.4)
+if k==1:
+    print('\n新建存档失败,3秒后关闭程序')
+    time.sleep(3)
+    exit()
 
 def main():
     global DATE
@@ -143,7 +173,7 @@ def Change(Ch):#Ch=[(xen,Date_index,oldxch,newxch),]
 def save():
     global Map0
     data = 'wordslist=%s\ndaka=%s\nMap=%s\nMap0=%d'%(wordslist,daka,Map,Map0)
-    with open('wordslist.py','w') as f:#保存存档
+    with open('%s\\wordslist.py'%nowpath,'w') as f:#保存存档
         f.write(data)
 
 def check(x):#x=日期
@@ -181,7 +211,7 @@ def check(x):#x=日期
     if not l:
         print('不要自己骗自己哦...')
     if Map0:
-        WaveMap(Map)
+        Histo(Map)
     if daka['L_D']!=str(datetime.date.today()):
         daka['CON']+=1
         daka['TOT']+=1
@@ -211,7 +241,7 @@ def seekword():
         if k==0:
             print('单词不在库中')
 
-def WaveMap(data0):#极其简陋的图data0=[listY1,...];listY=[date,r_num,l_num]
+def Histo(data0):#柱状图,精度10,data0=[listY1,...];listY=[date,r_num,l_num]
     temp=data0[-1][0].split('-')
     data=[data0[-1]]
     for i in range(1,7):
@@ -225,9 +255,9 @@ def WaveMap(data0):#极其简陋的图data0=[listY1,...];listY=[date,r_num,l_num
                 break
         if t:
             data=[[str(k),0,0]]+data
-    Dia=('+','o','*')
+    Dia=('*','+')
     Map=('┃','━','┻','┗','>','▲')
-    print('      %s:复习数量    %s:学习数量'%(Dia[0],Dia[2]))
+    print('      %s:复习数量    %s:新增数量'%(Dia[0],Dia[1]))
     temp=''.join([f'{i[0][-5:]:>6}' for i in data])
     X0='       '+temp
     X1='   0'+Map[3]+(Map[1]*2+Map[2])*7+Map[1]*2+Map[4]
@@ -236,37 +266,20 @@ def WaveMap(data0):#极其简陋的图data0=[listY1,...];listY=[date,r_num,l_num
         if i%2==1:
             temp[i]='    '
     Y=['    ']*2+temp+['    ']
-    temp=[Map[5]+'     ']+[Map[0]+'     ']*11
+    temp=[Map[5]+'   ']+[Map[0]+'   ']*11
     Y=[Y[i]+temp[i] for i in range(12)]
     #以上框架
     H=[0,0]
     for k in (0,1):
-        Ht=[0]*37
+        Ht=[0]*40
         for i in range(7):
-            Ht[i*6]=data[i][k+1]
-        for i in range(0,36,6):
-           a=Ht[i]
-           b=Ht[i+6]
-           Ht[i+3]=(a+b)//2
-           Ht[i+2]=(Ht[i+3]+a)//2
-           Ht[i+4]=(Ht[i+3]+b)//2
-           Ht[i+1]=(Ht[i+2]+a)//2
-           Ht[i+5]=(Ht[i+4]+b)//2
-        for i in range(37):
-            add=0 if Ht[i]%10<5 else 1
-            if add>12:
-                add=12
-            Ht[i]=Ht[i]//10+add
+            Ht[i*6+k*2]=data[i][k+1]//10+(0 if data[i][k+1]%10<5 else 1)
+            Ht[i*6+1+k*2]=Ht[i*6+k*2]
         H[k]=Ht
-    print(H)
-    for i in range(37):
-        Dh=(Dia[0],H[0][i])
-        Dl=(Dia[2],H[1][i])
-        if H[0][i]<H[1][i]:
-            temp=Dl
-            Dl=Dh
-            Dh=temp
-        temp=[' ']*(12-Dh[1])+[Dh[0]]*(Dh[1]-Dl[1])+[Dia[1]]*(Dl[1])
+    for i in range(40):
+        Dl=(Dia[0],H[0][i])
+        Dr=(Dia[1],H[1][i])
+        temp=[' ']*(12-Dl[1]-Dr[1])+[Dl[0]]*(Dl[1])+[Dr[0]]*(Dr[1])
         Y=[Y[i]+temp[i] for i in range(12)]
     print('\n'.join(Y)+'\n'+X1+'\n'+X0)
 
