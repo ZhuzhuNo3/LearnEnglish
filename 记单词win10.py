@@ -110,7 +110,7 @@ def main():
             if Ch:#有重复
                 Change(Ch)
         elif n == 2:
-            print('复习:(q/退出;y/已会(不再出现))')
+            print('复习:(q/退出;y/已会(不再出现);n/不记得(刷新复习频率))')
             check(str(now))
         elif n == 3:
             for i in wordslist:
@@ -206,6 +206,9 @@ def check(x):#x=日期
                 wordslist['knowwell']={}
             wordslist['knowwell'][i[0]] = i[1]
             dele(i[0])
+        elif tag=='n':
+            dele(i[0])
+            learn('%s  %s'%(i[0],i[1]))
     print('背完啦,给自己点个赞吧^_^')
     Map[-1][1]=k
     if not l:
