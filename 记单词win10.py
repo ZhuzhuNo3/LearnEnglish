@@ -1,4 +1,4 @@
-﻿#-*- coding=utf-8 -*-#
+#-*- coding=utf-8 -*-#
 import datetime,re,random,time,os
 from os import system as sy
 from sys import path
@@ -197,8 +197,9 @@ def check(x):#x=日期
         if tag=='q':
             print('还没背完就退出无法打卡哦,确定退出吗?y/n')
             if input()=='y':
-                Map[-1][1]=k
-                save()
+                if Map[-1][1]<k:
+                    Map[-1][1]=k
+                    save()
                 print(':P')
                 return
         elif tag=='y':
@@ -210,7 +211,8 @@ def check(x):#x=日期
             dele(i[0])
             learn('%s  %s'%(i[0],i[1]))
     print('背完啦,给自己点个赞吧^_^')
-    Map[-1][1]=k
+    if Map[-1][1]<len(l):
+        Map[-1][1]=k
     if not l:
         print('不要自己骗自己哦...')
     if Map0:

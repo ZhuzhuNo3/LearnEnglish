@@ -199,8 +199,9 @@ def check(x):#x=日期
         if tag=='q':
             print('还没背完就退出无法打卡哦,确定退出吗?y/n')
             if input()=='y':
-                Map[-1][1]=k
-                save()
+                if Map[-1][1]<k:
+                    Map[-1][1]=k
+                    save()
                 print(':P')
                 return
         #会了
@@ -213,7 +214,8 @@ def check(x):#x=日期
         elif tag=='n':
             dele(i[0])
             learn('%s  %s'%(i[0],i[1]))
-    Map[-1][1]=len(l)
+        if Map[-1][1]<len(l):
+            Map[-1][1]=len(l)
     print('背完啦,给自己点个赞吧^_^')
     if not l:
         print('不要自己骗自己哦...')
