@@ -63,7 +63,7 @@ def main():
         daka['CON']=0#没有连续复习
     if daka['TOT']==0:
         pass
-    elif not print(f"你已连续复习{daka['CON']}天,累计天{daka['TOT']}啦") and daka['CON']==0:
+    elif not print(f"你已连续复习{daka['CON']}天,累计{daka['TOT']}天啦") and daka['CON']==0:
         print('不积跬步,无以至千里!')
     elif daka['CON']<6:
         print('继续加油哦!')
@@ -237,16 +237,38 @@ def dele(x):
     print('不存在')
 
 def seekword():
+    temp={}
+    for i in wordslist:
+        temp.update(wordslist[i])
     print('输入要查询的单词(退出->q):')
     while 1:
         k=0
         x=input()
-        for i in wordslist:
-            if x in wordslist[i]:
-                print(wordslist[i][x])
-                k=1
-            elif x == 'q':
-                return
+        if not x:
+            continue
+        if x=='q':
+            return
+        if x in temp:
+            k=1
+            print(temp[x])
+        else:
+            #去除非字母符号
+            while ord(x[0])<65 or 90<ord(x[0])<97 or ord(x[0])>122:
+                x=x[1:]
+            temp0=[]
+            #模糊查找...
+            for j in range(3):
+                if len(x)<=2:
+                    break
+                for i in temp:
+                    if x in i:
+                        temp0.append('%s  %s'%(i,temp[i]))
+                        k=1
+                        if len(temp0)>5:
+                            break
+                x=x[:-1]
+            if temp0:
+                print('你要找的是不是:\n%s'%('\n'.join(temp0)))
         if k==0:
             print('单词不在库中')
 
