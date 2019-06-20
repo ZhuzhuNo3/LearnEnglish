@@ -268,7 +268,7 @@ def seekword():
                             break
                 x=x[:-1]
             if temp0:
-                print('你要找的是不是:\n%s'%('\n'.join(temp0)))
+                print('你要找的是不是:\n%s'%('\n'.join(set(temp0))))
         if k==0:
             print('单词不在库中')
 
