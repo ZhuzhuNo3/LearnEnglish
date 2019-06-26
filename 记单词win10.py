@@ -236,6 +236,7 @@ def seekword():
     temp={}
     for i in wordslist:
         temp.update(wordslist[i])
+    temp=[(i,temp[i]) for i in temp]#方便查意思
     print('输入要查询的单词(退出->q):')
     while 1:
         k=0
@@ -244,29 +245,39 @@ def seekword():
             continue
         if x=='q':
             return
-        if x in temp:
+        #有中文则从意译中查找
+        ch=has_ch(x)
+        temp0=[]
+        temp0=[i for i in temp if x==i[ch]]
+        if temp0:
             k=1
-            print(temp[x])
+            print('\n'.join(['%s  %s'%(i[0],i[1]) for i in set(temp0)]))
         else:
-            #去除非字母符号
-            while ord(x[0])<65 or 90<ord(x[0])<97 or ord(x[0])>122:
-                x=x[1:]
             temp0=[]
             #模糊查找...
             for j in range(3):
+                for i in temp:
+                    temp0+=[i for i in temp if x in i[ch]]
+                    if temp0:
+                        k=1
+                    if len(temp0)>5:
+                        temp0=temp0[:6]
+                        break
                 if len(x)<=2:
                     break
-                for i in temp:
-                    if x in i:
-                        temp0.append('%s  %s'%(i,temp[i]))
-                        k=1
-                        if len(temp0)>5:
-                            break
                 x=x[:-1]
+                if len(temp0)>5:
+                    break
             if temp0:
-                print('你要找的是不是:\n%s'%('\n'.join(set(temp0))))
+                print('你要找的是不是:\n%s'%('\n'.join(['%s  %s'%(i[0],i[1]) for i in set(temp0)])))
         if k==0:
             print('单词不在库中')
+
+def has_ch(x):
+    for i in x:
+        if '\u4e00'<=x<='\u9fcf':
+            return 1
+    return 0
 
 def Histo(data0):#柱状图,精度10,data0=[listY1,...];listY=[date,r_num,l_num]
     temp=data0[-1][0].split('-')
