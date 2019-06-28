@@ -79,7 +79,7 @@ def main():
         except:
             continue
         if n == 1:
-            Ch=[]#重复列表
+            Ch={}#重复列表
             print('新增内容:(q/结束)(格式:A  B)(2个空格)')
             x=input('1.批量导入 2.文件导入:')
             if x=='2':
@@ -105,8 +105,9 @@ def main():
                     elif x == '':
                         print('无效内容')
                     else:
-                        Ch.append(learn(x))
-            Ch=[i for i in Ch if i]#去除0
+                        temp=learn(x)
+                        if temp:
+                            Ch.update(temp)
             if Ch:#有重复
                 Change(Ch)
         elif n == 2:
@@ -143,26 +144,26 @@ def learn(x):
         wordslist[date1]={}
     for i in wordslist:
         if xen in wordslist[i]:#如果输入内容已存在
-            return (xen,i,wordslist[i][xen],xch)
+            return {xen:(i,wordslist[i][xen],xch)}
     wordslist[date1][xen] = xch
     Map[-1][2]=len(wordslist[date1])
     save()
     return 0
 
-def Change(Ch):#Ch=[(xen,Date_index,oldxch,newxch),]
-    print('已存在词汇,是否修改: %s'%(' '.join([i[0] for i in Ch])))
+def Change(Ch):#Ch={xen:(Date_index,oldxch,newxch)}
+    print('已存在词汇,是否修改: %s'%(' '.join([i for i in Ch])))
     k=1
     for i in Ch:
         if k:
-            print(f"{i[0]}: {i[2]} --> {i[3]}")
+            print(f"{i}: {Ch[i][1]} --> {Ch[i][2]}")
             tag=input('?Y/y/N/n ')
         if tag=='y':
-            wordslist[i[1]][i[0]]=i[3]
+            wordslist[Ch[i][0]][i]=Ch[i][2]
             print('✓')
         elif tag=='n':
             pass
         elif tag=='Y':
-            wordslist[i[1]][i[0]]=i[3]
+            wordslist[Ch[i][0]][i]=Ch[i][2]
             if k:
                 print('✓')
             k=0
@@ -260,7 +261,8 @@ def seekword():
                     temp0+=[i for i in temp if x in i[ch]]
                     if temp0:
                         k=1
-                    if len(temp0)>5:
+                    #若输入空格则查找所有带空格的词组
+                    if len(temp0)>5 and x!=' ':
                         temp0=temp0[:6]
                         break
                 if len(x)<=2:
