@@ -277,7 +277,7 @@ def seekword():
 
 def has_ch(x):
     for i in x:
-        if '\u4e00'<=x<='\u9fcf':
+        if '\u4e00'<=i<='\u9fcf':
             return 1
     return 0
 
