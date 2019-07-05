@@ -209,8 +209,8 @@ def check(x):#x=日期
         elif tag=='y':
             if 'knowwell' not in wordslist:
                 wordslist['knowwell']={}
-            wordslist['knowwell'][i[0]] = i[1]
             dele(i[0])
+            wordslist['knowwell'][i[0]] = i[1]
         #完全不记得了,移动至今天的记录
         elif tag=='n':
             dele(i[0])
