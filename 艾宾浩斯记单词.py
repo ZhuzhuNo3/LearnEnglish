@@ -211,6 +211,7 @@ def check(x):#x=日期
                 wordslist['knowwell']={}
             dele(i[0])
             wordslist['knowwell'][i[0]] = i[1]
+            save()
         #完全不记得了,移动至今天的记录
         elif tag=='n':
             dele(i[0])

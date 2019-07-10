@@ -208,6 +208,7 @@ def check(x):#x=日期
                 wordslist['knowwell']={}
             dele(i[0])
             wordslist['knowwell'][i[0]] = i[1]
+            save()
         elif tag=='n':
             dele(i[0])
             learn('%s  %s'%(i[0],i[1]))
