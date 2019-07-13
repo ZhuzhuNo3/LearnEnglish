@@ -83,7 +83,7 @@ def main():
             print('新增内容:(q/结束)(格式:A  B)(2个空格)')
             x=input('1.批量导入 2.文件导入:')
             if x=='2':
-                print('文件内容格式:\nA  B(换行,括号里的不需要哦)\nA  B\n...')
+                print('文件内容格式:\nA  B\nA  B\n...')
                 data=input('输入文件详细地址:\n')
                 try:
                     while data[-1]==' ':#去除多余空格
@@ -94,7 +94,7 @@ def main():
                         words=words[:-1]
                     for i in words:
                         print(i)
-                        Ch.append(learn(i))
+                        Ch.update(learn(i))
                 except:
                     print('无法读取文件')
             elif x=='1':
