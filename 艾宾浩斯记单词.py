@@ -1,5 +1,6 @@
 #-*- coding=utf-8 -*-#
 import datetime,re,random,time,os
+from threading import Thread
 from os import system as sy
 from sys import path
 nowpath=os.getcwd()+'/.DANCIsave'#藏起来hhh
@@ -179,8 +180,24 @@ def save():
     with open('%s/wordslist.py'%nowpath,'w') as f:#保存存档
         f.write(data)
 
+#背单词时的倒计时,改为多线程,在回车后不会继续倒数
+def Sleep(text1,text2):
+    global T
+    k=0
+    for i in range(500):
+        if T:
+            break
+        if k%100==0:
+            print('\r'+str(5-k//100),end='')
+        k+=1
+        time.sleep(0.01)
+    print('\r'+text1+'\n'+text2,end='')#意译+剩余数量
+    if k!=500:#提前结束则多换一行
+        print()
+
 def check(x):#x=日期
     global Map
+    global T
     print('= = 今日份复习开始 = =')
     value = [i for i in wordslist if x in i]
     l=[]
@@ -191,17 +208,13 @@ def check(x):#x=日期
     k=0
     for i in l:
         print(i[0])
-        for j in range(5):
-            print('\r'+str(5-j),end='')
-            time.sleep(1)
-        print('\r'+i[1])
         k+=1
-        #解决Mac终端,在倒计时结束前输入回车时会导致下一个单词与剩余比例同行显示的问题
-        T=time.time()
-        tag=input(f'{len(l)-k}/{len(l)}')
-        #在倒计时结束前输入回车时,上下时差约为0.00035
-        if time.time()-T < 0.001:
-            print()
+        T=0
+        Count=Thread(target=Sleep,args=(i[1],f'{len(l)-k}/{len(l)}'))
+        Count.start()
+        tag=input()
+        T=1
+        Count.join()
         if tag=='q':
             print('还没背完就退出无法打卡哦,确定退出吗?y/n')
             if input()=='y':

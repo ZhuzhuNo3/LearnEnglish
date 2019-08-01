@@ -1,5 +1,6 @@
 #-*- coding=utf-8 -*-#
 import datetime,re,random,time,os
+from threading import Thread
 from os import system as sy
 from sys import path
 nowpath=os.getcwd()+'/DANCIsave'
@@ -177,8 +178,25 @@ def save():
     with open('%s\\wordslist.py'%nowpath,'w') as f:#保存存档
         f.write(data)
 
+#背单词时的倒计时,改为多线程,在回车后不会继续倒数
+def Sleep(text1,text2):
+    global T
+    k=0
+    #在虚拟机上测试发现倒计时有点慢,于是将时间略微加快了一些
+    for i in range(400):
+        if T:
+            break
+        if k%80==0:
+            print('\r'+str(5-k//80),end='')
+        k+=1
+        time.sleep(0.01)
+    print('\r'+text1+'\n'+text2,end='')#意译+剩余数量
+    if k!=400:#提前结束则多换一行
+        print()
+
 def check(x):#x=日期
     global Map
+    global T
     print('= = 今日份复习开始 = =')
     value = [i for i in wordslist if x in i]
     l=[]
@@ -189,12 +207,13 @@ def check(x):#x=日期
     k=0
     for i in l:
         print(i[0])
-        for j in range(5):
-            print('\r'+str(5-j),end='')
-            time.sleep(1)
-        print('\r'+i[1])
         k+=1
-        tag=input(f'{len(l)-k}/{len(l)}')
+        T=0
+        Count=Thread(target=Sleep,args=(i[1],f'{len(l)-k}/{len(l)}'))
+        Count.start()
+        tag=input()
+        T=1
+        Count.join()
         if tag=='q':
             print('还没背完就退出无法打卡哦,确定退出吗?y/n')
             if input()=='y':
